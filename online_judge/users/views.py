@@ -40,7 +40,7 @@ def login(request):
         user=auth.authenticate(username=username,password=password)
         if user is not None:
             auth.login(request,user)
-            return redirect('http://localhost:8000/home')
+            return redirect('http://localhost:8000/problems/')
         else:
             messages.info(request,"Invalid Credentials")
             return render(request,'login.html')

@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <title>Hello, world!</title>
+    <style>
+        /*==================================================
+        Post Contents CSS
+        ==================================================*/
+
+        .post-content{
+        background: #f8f8f8;
+        border-radius: 4px;
+        width: 100%;
+        border: 1px solid #f1f2f2;
+        margin-bottom: 20px;
+        overflow: hidden;
+        position: relative;
+        }
+
+        .post-content img.post-image, video.post-video, .google-maps{
+        width: 100%;
+        height: auto;
+        }
+
+        .post-content .google-maps .map{
+        height: 300px;
+        }
+
+        .post-content .post-container{
+        padding: 20px;
+        }
+
+        .post-content .post-container .post-detail{
+        margin-left: 65px;
+        position: relative;
+        }
+
+        .post-content .post-container .post-detail .post-text{
+        line-height: 24px;
+        margin: 0;
+        }
+
+        .post-content .post-container .post-detail .reaction{
+        position: absolute;
+        right: 0;
+        top: 0;
+        }
+
+        .post-content .post-container .post-detail .post-comment{
+        display: inline-flex;
+        margin: 10px auto;
+        width: 100%;
+        }
+
+        .post-content .post-container .post-detail .post-comment img.profile-photo-sm{
+        margin-right: 10px;
+        }
+
+        .post-content .post-container .post-detail .post-comment .form-control{
+        height: 30px;
+        border: 1px solid #ccc;
+        box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+        margin: 7px 0;
+        min-width: 0;
+        }
+
+        img.profile-photo-md {
+            height: 50px;
+            width: 50px;
+            border-radius: 50%;
+        }
+
+        img.profile-photo-sm {
+            height: 40px;
+            width: 40px;
+            border-radius: 50%;
+        }
+
+        .text-green {
+            color: #8dc63f;
+        }
+
+        .text-red {
+            color: #ef4136;
+        }
+
+        .following {
+            color: #8dc63f;
+            font-size: 12px;
+            margin-left: 20px;
+        }
+        .scrollabletextbox{
+            height: 500px;
+            width: 1000px;
+            overflow: scroll;
+        }
+    </style>
+</head>
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <!-- Container wrapper -->
+        <div class="container-fluid">
+        <!-- Toggle button -->
+        <button
+            class="navbar-toggler"
+            type="button"
+            data-mdb-toggle="collapse"
+            data-mdb-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
+        >
+            <i class="fas fa-bars"></i>
+        </button>
+    
+        <!-- Collapsible wrapper -->
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <!-- Navbar brand -->
+            <a class="navbar-brand mt-2 mt-lg-0" href="#">
+            <img
+                src="https://mdbcdn.b-cdn.net/img/logo/mdb-transaprent-noshadows.webp"
+                height="15"
+                alt="MDB Logo"
+                loading="lazy"
+            />
+            </a>
+            <!-- Left links -->
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+                <a class="nav-link" href="#">Hello, {{user.first_name}}</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="http://localhost:8000/problems/">Dashboard</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Team</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="http://localhost:8000/users/logout">Logout</a>
+            </li>
+            </ul>
+            <!-- Left links -->
+        </div>
+        <!-- Collapsible wrapper -->
+    
+        <!-- Right elements -->
+        <!-- <div class="align-items-center"> -->
+            <!-- <li class="nav-item">
+                <a class="nav-link" href="#">Logout</a>
+            </li> -->
+        <!-- </div> -->
+        <!-- Right elements -->
+        </div>
+        <!-- Container wrapper -->
+    </nav>
+    <!-- Navbar -->
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
+    <div>
+        <div>
+            <div >
+                <div class="post-content">
+                <div class="post-container">
+                    <div class="post-detail">
+                    <div class="user-info">
+                        <h5><a href="timeline.html" class="profile-link">{{problem.question_name}}</a></h5>
+                    </div>
+                    <div class="line-divider"></div>
+                    <div class="post-text">
+                        <p>{{problem.question_desc}}<i class="em em-anguished"></i> <i class="em em-anguished"></i> <i class="em em-anguished"></i></p>
+                    </div>
+                    <div class="line-divider"></div>
+                    <div>
+                        <p>Input Format <br>
+                        {{problem.input_format | linebreaksbr}}</p>
+                    </div>
+                    <div>
+                        <p>Output Format <br>
+                        {{problem.output_format | linebreaksbr}}</p>
+                    </div>
+                    <div>
+                        <p>Code</p>
+                        <textarea name="code" class="scrollabletextbox"></textarea>
+                    </div>
+                    <div>
+                        <button>Submit</button>
+                    </div>
+                    </div>
+                </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+  </body>
+</html>
