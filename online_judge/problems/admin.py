@@ -1,4 +1,7 @@
 from django.contrib import admin
 from .models import Problem
 
-admin.site.register(Problem)
+class AdminProblem(admin.ModelAdmin):
+    list_display=['question_name']
+
+admin.site.register(Problem,AdminProblem)

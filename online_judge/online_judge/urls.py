@@ -22,6 +22,7 @@ urlpatterns = [
     path('home/',include('oj.urls')),
     path('users/',include('users.urls')),
     path('problems/',include('problems.urls')),
+    path('',include('submissions.urls'))
 ]
 
 if settings.DEBUG:

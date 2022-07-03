@@ -12,7 +12,8 @@ def all_question(request):
 def get_question(request,question_id):
     try:
         problem=Problem.objects.get(pk=question_id)
-        print(problem.question_desc)
+        # print(problem.question_desc)
         return render(request,'problems.html',{'problem':problem})
     except:
+        print
         return HttpResponse("Problem Does not Exist")

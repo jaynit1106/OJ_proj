@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'submissions.apps.SubmissionsConfig',
     'testcases.apps.TestcasesConfig',
     'problems.apps.ProblemsConfig',
     'django.contrib.admin',

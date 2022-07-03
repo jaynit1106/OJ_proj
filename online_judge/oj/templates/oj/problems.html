@@ -185,13 +185,24 @@
                         <p>Output Format <br>
                         {{problem.output_format | linebreaksbr}}</p>
                     </div>
-                    <div>
-                        <p>Code</p>
-                        <textarea name="code" class="scrollabletextbox"></textarea>
-                    </div>
-                    <div>
-                        <button>Submit</button>
-                    </div>
+                    <form action="http://localhost:8000/{{user.username}}/{{problem.question_name}}/submit" method="post">
+                        {%csrf_token%}
+                        <div>
+                            <p>Code</p>
+                            <textarea name="code" class="scrollabletextbox"></textarea>
+                        </div>
+                        <div style="padding-top: 10px;">
+                            <select id="language" name="language">
+                                <option value="C++">C++</option>
+                                <option value="Python">Python</option>
+                                <option value="Java">Java</option>
+                                <option value="C">C</option>
+                            </select>
+                        </div>
+                        <div style="padding-top: 20px;">
+                            <button type="submit">Submit</button>
+                        </div>
+                    </form>
                     </div>
                 </div>
                 </div>

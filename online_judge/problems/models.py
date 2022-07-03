@@ -22,3 +22,9 @@ class Problem(models.Model):
     input_format=models.TextField(max_length=50)
     output_format=models.TextField(max_length=50)
     status=models.CharField(max_length=8,choices=status_choices,default='unsolved')
+
+    def __unicode__(self):
+        return self.question_name
+
+    def __str__(self):
+        return self.question_name
