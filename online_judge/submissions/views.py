@@ -2,6 +2,8 @@ from sys import stderr
 from django.shortcuts import render,redirect
 from django.http import HttpResponse
 import subprocess
+
+from matplotlib.style import use
 from submissions.models import Submission
 from testcases.models import Testcase
 from django.contrib.auth.models import User
@@ -41,7 +43,7 @@ def submit(request,question_name,username):
             except:
                 submission=Submission(username=User.objects.get(username=username),question_name=Problem.objects.get(question_name=question_name),code=code,language=language,status='Compilation Error')
                 submission.save()
-                return redirect("http://localhost:8000/ramesh/submissions")
+                return redirect("http://localhost:8000/"+str(username)+"/submissions")
 
             ans=output.stdout
             
@@ -50,11 +52,11 @@ def submit(request,question_name,username):
         if(real_outputs == outputs):
             submission=Submission(username=User.objects.get(username=username),question_name=Problem.objects.get(question_name=question_name),code=code,language=language,status='Accepted')
             submission.save()
-            return redirect("http://localhost:8000/ramesh/submissions")
+            return redirect("http://localhost:8000/"+str(username)+"/submissions")
         else:
             submission=Submission(username=User.objects.get(username=username),question_name=Problem.objects.get(question_name=question_name),code=code,language=language,status='Wrong Answer')
             submission.save()
-            return redirect("http://localhost:8000/ramesh/submissions")
+            return redirect("http://localhost:8000/"+str(username)+"/submissions")
     else:
         return HttpResponse("galat hai bhai")
 
@@ -64,7 +66,18 @@ from .models import Submission
 def view_submissions(request,username):
     all_submissions=Submission.objects.all()
     submissions=[]
+    
     for submission in all_submissions:
         if(str(submission.username)==str(username)):
             submissions.append(submission)
-    return render(request,'submissions.html',{'submissions':all_submissions})
+    # print(submissions)
+    submissions.reverse()
+    # print(submissions)
+    return render(request,'submissions.html',{'submissions':submissions})
+
+def view_code(request,code_id,username):
+    code=Submission.objects.get(pk=code_id)
+    if(str(username) != str(code.username)):
+        return HttpResponse("Invalid User")
+    code=code.code
+    return render(request,'code.html',{'code':code})
