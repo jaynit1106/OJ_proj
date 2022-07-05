@@ -1,4 +1,5 @@
 from sys import stderr
+from black import out
 from django.shortcuts import render,redirect
 from django.http import HttpResponse
 import subprocess
@@ -32,20 +33,31 @@ def submit(request,question_name,username):
         
         outputs=[]
         for input in inputs:
-            f = open("demo.cpp", "w")
-            f.write(str(code))
-            f.close()
-
             file= os.path.join('C:\OJ_proj\online_judge\media',str(input))
             try:
-                output = subprocess.run(['g++','C:\OJ_proj\online_judge\demo.cpp','-o','outputfile.exe'], capture_output=True, shell =True,text=True, input="C:\OJ_proj\online_judge\media\input\input.txt", check=True, timeout=5)
-                output = subprocess.run(['outputfile.exe','<',file], capture_output=True, shell =True,text=True, input="C:\OJ_proj\online_judge\media\input\input.txt", check=True, timeout=5)
+                if language == "C++":  #managing C++ files
+                    f = open("demo.cpp", "w")
+                    f.write(str(code))
+                    f.close()
+                    output = subprocess.run(['g++','C:\OJ_proj\online_judge\demo.cpp','-o','outputfile.exe'], capture_output=True, shell =True,text=True, input="C:\OJ_proj\online_judge\media\input\input.txt", check=True, timeout=5)
+                    output = subprocess.run(['outputfile.exe','<',file],stdin=open(file,'r'),stdout=open('output.txt','w'),  timeout=5)
+                    with open('output.txt','r') as f:
+                        text = f.read().rstrip()
+                    ans=text
+                if language=='Python': #managing python files
+                    f = open("demo.py", "w")
+                    f.write(str(code))
+                    f.close()
+                    output = subprocess.run(['python',"C:\OJ_proj\online_judge\demo.py"],stdin=open(file,'r'),stdout=open('python_output.txt','w'),timeout=5)
+                    with open('python_output.txt','r') as f:
+                        text = f.read().rstrip()
+                    ans=text                    
             except:
                 submission=Submission(username=User.objects.get(username=username),question_name=Problem.objects.get(question_name=question_name),code=code,language=language,status='Compilation Error')
                 submission.save()
                 return redirect("http://localhost:8000/"+str(username)+"/submissions")
 
-            ans=output.stdout
+            
             
             outputs.append(str(ans))
 

@@ -15,5 +15,11 @@ def get_question(request,question_id):
         # print(problem.question_desc)
         return render(request,'problems.html',{'problem':problem})
     except:
-        print
+        return HttpResponse("Problem Does not Exist")
+
+def get_question_byname(request,question_name):
+    try:
+        problem=Problem.objects.get(question_name=question_name)
+        return render(request,'problems.html',{'problem':problem})
+    except:
         return HttpResponse("Problem Does not Exist")

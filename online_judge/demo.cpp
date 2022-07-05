@@ -12,7 +12,7 @@ using namespace std;
 #define vi vector<ll int>
 #define vs vector<string>
 #define pi pair<ll int,ll int> 
-void pv(vector<ll int>v){for(auto itr :v)cout<<itr<<" ";cout<<nline;}
+void pv(vector<ll int>v){for(auto itr :v)cout<<itr<<" ";}
 void p2d(vector<vector<ll int>>v){for(auto itr :v){for(auto itr1:itr)cout<<itr1<<" ";cout<<nline;}}
 void printpair(vector<pair<ll int,ll int>>v){for(auto itr : v)cout<<itr.ft<<" "<<itr.sd<<nline;}
 void printmap(map<ll int,ll int>m){for(auto itr :m)cout<<itr.ft<<" "<<itr.sd<<nline;}
