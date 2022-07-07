@@ -39,8 +39,13 @@ def submit(request,question_name,username):
                     f = open("demo.cpp", "w")
                     f.write(str(code))
                     f.close()
-                    output = subprocess.run(['g++','C:\OJ_proj\online_judge\demo.cpp','-o','outputfile.exe'], capture_output=True, shell =True,text=True, input="C:\OJ_proj\online_judge\media\input\input.txt", check=True, timeout=5)
-                    output = subprocess.run(['outputfile.exe','<',file],stdin=open(file,'r'),stdout=open('output.txt','w'),  timeout=5)
+                    subprocess.run(['docker','cp','C:\OJ_proj\online_judge\demo.cpp','79ae93e3b6f0:/demo.cpp'])
+                    subprocess.run(['docker','cp',file,'79ae93e3b6f0:/input.txt'])
+                    subprocess.run(['docker','exec','-it','79ae93e3b6f0','g++','demo.cpp','-o','ans.exe'])
+                    subprocess.run(['docker','exec','-it','79ae93e3b6f0','//bin//sh','./best.sh'],timeout=5)
+                    subprocess.run(['docker','cp','79ae93e3b6f0:/output.txt','C:\OJ_proj\online_judge\output.txt'])
+                    subprocess.run(['docker','exec','-it','79ae93e3b6f0','rm','output.txt'])
+                    subprocess.run(['docker','exec','-it','79ae93e3b6f0','rm','ans.exe'])
                     with open('output.txt','r') as f:
                         text = f.read().rstrip()
                     ans=text
@@ -60,6 +65,9 @@ def submit(request,question_name,username):
             
             
             outputs.append(str(ans))
+            f = open("output.txt", "w")
+            f.write("-------")
+            f.close()
 
         if(real_outputs == outputs):
             submission=Submission(username=User.objects.get(username=username),question_name=Problem.objects.get(question_name=question_name),code=code,language=language,status='Accepted')
