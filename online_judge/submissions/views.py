@@ -1,9 +1,12 @@
-from sys import stderr
-from black import out
+from distutils.log import error
+from http.client import NOT_FOUND
+from pydoc import doc
+from time import sleep
 from django.shortcuts import render,redirect
 from django.http import HttpResponse
 import subprocess
-
+import docker
+from docker.models.containers import Container
 from matplotlib.style import use
 from submissions.models import Submission
 from testcases.models import Testcase
@@ -12,7 +15,9 @@ from problems.models import Problem
 import os
 # Create your views here.
 
-
+client=docker.from_env()
+docker_img_python = 'python'
+docker_img_gcc = 'gcc'
 
 def submit(request,question_name,username):
     if request.method == 'POST':
@@ -22,7 +27,7 @@ def submit(request,question_name,username):
         inputs=[]
         real_outputs=[]
         
-        
+        #getting the testcases
         for testcase in testcases:
             if(str(testcase.question_name) == str(question_name)):
                 inputs.append(testcase.input_tc)
@@ -32,31 +37,74 @@ def submit(request,question_name,username):
                 real_outputs.append(str(data))        
         
         outputs=[]
+        
+        #creating a docker container
+        try:
+            container:Container=client.containers.get(username)
+            if(container.status != 'running'):
+                container.start()
+        except docker.errors.NotFound:
+            if(language=='C++'):
+                container = client.containers.run(docker_img_gcc,detach=True,tty=True,name=username)
+            if(language=='Python'):
+                container = client.containers.run(docker_img_python,detach=True,tty=True,name=username)
+
+        #finding output for each input testcase
         for input in inputs:
             file= os.path.join('C:\OJ_proj\online_judge\media',str(input))
+            best_file=os.path.join('C:\OJ_proj\online_judge','best.sh')
+            container_string=container.id
             try:
                 if language == "C++":  #managing C++ files
                     f = open("demo.cpp", "w")
                     f.write(str(code))
                     f.close()
-                    subprocess.run(['docker','cp','C:\OJ_proj\online_judge\demo.cpp','79ae93e3b6f0:/demo.cpp'])
-                    subprocess.run(['docker','cp',file,'79ae93e3b6f0:/input.txt'])
-                    subprocess.run(['docker','exec','-it','79ae93e3b6f0','g++','demo.cpp','-o','ans.exe'])
-                    subprocess.run(['docker','exec','-it','79ae93e3b6f0','//bin//sh','./best.sh'],timeout=5)
-                    subprocess.run(['docker','cp','79ae93e3b6f0:/output.txt','C:\OJ_proj\online_judge\output.txt'])
-                    subprocess.run(['docker','exec','-it','79ae93e3b6f0','rm','output.txt'])
-                    subprocess.run(['docker','exec','-it','79ae93e3b6f0','rm','ans.exe'])
-                    with open('output.txt','r') as f:
+                    #send files
+                    subprocess.run(['docker','cp','C:\OJ_proj\online_judge\demo.cpp',str(container_string)+':/demo.cpp'])
+                    subprocess.run(['docker','cp',best_file,str(container_string)+':/best.sh'])
+                    subprocess.run(['docker','cp',file,str(container_string)+':/input.txt'])
+
+                    #run files
+                    subprocess.run(['docker' ,'exec' ,'-it',str(container_string),'g++','demo.cpp','-o','ans.exe'],timeout=5)
+                    subprocess.run(['docker' ,'exec' ,'-it', str(container_string),'//bin//sh','./best.sh'],timeout=5)
+                    
+                    #bring back the files
+                    temp=str(container_string)+':/output.txt'
+                    output_file_add='C:\OJ_proj\online_judge\output'+ str(container_string) + '.txt'
+
+                    subprocess.run(['docker','cp',temp,output_file_add])
+                    subprocess.run(['docker','exec','-it',str(container_string),'rm','output.txt'])
+                    subprocess.run(['docker','exec','-it',str(container_string),'rm','ans.exe'])
+                    
+                    with open(output_file_add,'r') as f:
                         text = f.read().rstrip()
                     ans=text
+                    os.remove(output_file_add)
+                
                 if language=='Python': #managing python files
                     f = open("demo.py", "w")
                     f.write(str(code))
                     f.close()
-                    output = subprocess.run(['python',"C:\OJ_proj\online_judge\demo.py"],stdin=open(file,'r'),stdout=open('python_output.txt','w'),timeout=5)
-                    with open('python_output.txt','r') as f:
+
+                    #send files
+                    subprocess.run(['docker','cp','C:\OJ_proj\online_judge\demo.py',str(container_string)+':/demo.py'])
+                    subprocess.run(['docker','cp',file,str(container_string)+':/input.txt'])
+
+                    #run files
+                    subprocess.run(['docker' ,'exec' , container.id,'bash','-c',"python demo.py<input.txt>output.txt"],timeout=5)
+
+                    #bring back the files
+                    temp=str(container_string)+':/output.txt'
+                    output_file_add='C:\OJ_proj\online_judge\output'+ str(container_string) + '.txt'
+
+                    subprocess.run(['docker','cp',temp,output_file_add])
+                    subprocess.run(['docker','exec','-it',str(container_string),'rm','demo.py'])
+                    
+                    
+                    with open(output_file_add,'r') as f:
                         text = f.read().rstrip()
-                    ans=text                    
+                    ans=text
+                    os.remove(output_file_add)                    
             except:
                 submission=Submission(username=User.objects.get(username=username),question_name=Problem.objects.get(question_name=question_name),code=code,language=language,status='Compilation Error')
                 submission.save()
@@ -65,9 +113,10 @@ def submit(request,question_name,username):
             
             
             outputs.append(str(ans))
-            f = open("output.txt", "w")
-            f.write("-------")
-            f.close()
+            
+        #removing the docker container
+        subprocess.run(['docker','stop',container.id ])
+        subprocess.run(['docker','rm',container.id ])
 
         if(real_outputs == outputs):
             submission=Submission(username=User.objects.get(username=username),question_name=Problem.objects.get(question_name=question_name),code=code,language=language,status='Accepted')
@@ -90,9 +139,7 @@ def view_submissions(request,username):
     for submission in all_submissions:
         if(str(submission.username)==str(username)):
             submissions.append(submission)
-    # print(submissions)
     submissions.reverse()
-    # print(submissions)
     return render(request,'submissions.html',{'submissions':submissions})
 
 def view_code(request,code_id,username):

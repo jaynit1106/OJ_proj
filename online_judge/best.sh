@@ -1,0 +1,1 @@
+./ans.exe < input.txt > output.txt
