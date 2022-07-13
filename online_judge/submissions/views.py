@@ -61,21 +61,17 @@ def submit(request,question_name,username):
                     f.close()
                     #send files
                     subprocess.run(['docker','cp','C:\OJ_proj\online_judge\demo.cpp',str(container_string)+':/demo.cpp'])
-                    subprocess.run(['docker','cp',best_file,str(container_string)+':/best.sh'])
                     subprocess.run(['docker','cp',file,str(container_string)+':/input.txt'])
 
                     #run files
-                    subprocess.run(['docker' ,'exec' ,'-it',str(container_string),'g++','demo.cpp','-o','ans.exe'],timeout=5)
-                    subprocess.run(['docker' ,'exec' ,'-it', str(container_string),'//bin//sh','./best.sh'],timeout=5)
+                    subprocess.run(['docker' ,'exec' ,str(container_string),'bash','-c',"g++ demo.cpp"],timeout=5)
+                    subprocess.run(['docker' ,'exec' ,str(container_string),'bash','-c',"./a.out<input.txt>output.txt"],timeout=5)
                     
                     #bring back the files
                     temp=str(container_string)+':/output.txt'
                     output_file_add='C:\OJ_proj\online_judge\output'+ str(container_string) + '.txt'
 
                     subprocess.run(['docker','cp',temp,output_file_add])
-                    subprocess.run(['docker','exec','-it',str(container_string),'rm','output.txt'])
-                    subprocess.run(['docker','exec','-it',str(container_string),'rm','ans.exe'])
-                    
                     with open(output_file_add,'r') as f:
                         text = f.read().rstrip()
                     ans=text
